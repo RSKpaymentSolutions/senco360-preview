@@ -369,6 +369,22 @@
   .chatin{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--rule);background:var(--surface)}
   .chatin input{flex:1;border:1px solid var(--rule);border-radius:10px;padding:9px 12px;font-size:12.5px;color:var(--ink2);background:var(--soft);outline:none}
   .chatin .send{background:var(--bluebtn);color:#fff;border:none;border-radius:10px;width:40px;cursor:pointer;font-size:16px}
+  /* ===== cash flow scenario + consolidated + trust ===== */
+  .pace{display:flex;gap:10px;margin-bottom:14px}
+  .pace .pc{flex:1;background:var(--soft);border:1px solid var(--rule);border-radius:12px;padding:10px 12px}
+  .pace .pl{font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
+  .pace .pv{font-size:18px;font-weight:800;color:var(--ink);margin-top:3px;font-variant-numeric:tabular-nums}
+  .slider{margin-bottom:15px}
+  .slider label{display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:8px}
+  .slider label b{color:var(--blue);font-weight:800}
+  .slider input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:6px;background:var(--soft);outline:none;border:1px solid var(--rule)}
+  .slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--bluebtn);cursor:pointer;box-shadow:0 2px 6px rgba(37,99,235,.4)}
+  .slider input[type=range]::-moz-range-thumb{width:18px;height:18px;border:none;border-radius:50%;background:#2563EB;cursor:pointer}
+  .scenout{display:flex;gap:10px;margin:6px 0}
+  .scenout .so{flex:1;background:linear-gradient(120deg,rgba(37,99,235,.06),rgba(22,195,154,.09));border:1px solid var(--rule);border-radius:12px;padding:11px 12px;text-align:center}
+  .scenout .sl{font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--muted)}
+  .scenout .sv{font-size:19px;font-weight:800;color:var(--ink);margin-top:4px;font-variant-numeric:tabular-nums}
+  .trustpill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--up);background:rgba(15,169,104,.10);border:1px solid rgba(15,169,104,.25);border-radius:999px;padding:8px 12px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -394,8 +410,8 @@
       <div class="nav" data-view="retention" onclick="go(this)">
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>Retention
       </div>
-      <div class="nav" data-view="finance" onclick="go(this)">
-        <svg viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Finance <span class="soon">SOON</span>
+      <div class="nav" data-view="cashflow" onclick="go(this)">
+        <svg viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Cash Flow
       </div>
       <div class="nav" data-view="ask" onclick="go(this)">
         <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask the data <span class="soon">SOON</span>
@@ -413,6 +429,7 @@
       <div class="crumb">Senco 360 <b id="crumbpage">/ Dashboard</b></div>
       <div class="spacer"></div>
       <div class="merchpill"><span class="mdot">B</span>Batch CBD <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--muted);fill:none;stroke-width:2"><path d="M7 10l5 5 5-5"/></svg></div>
+      <div class="trustpill">✓ Reconciled with Triple Whale</div>
       <div class="ddown"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Last 30 days <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
       <div class="iconbtn"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
       <div class="iconbtn" id="themeBtn" onclick="toggleTheme()" title="Toggle night mode"><svg viewBox="0 0 24 24" id="themeIcon"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></div>
@@ -642,6 +659,31 @@
           <div class="kpi"><div class="l">Blended CAC (lower is better)</div><div class="v">$46</div><div class="c up"><span class="ar">▼</span>7.1%</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#0FA968" stroke-width="2" points="0,8 20,9 40,11 60,12 80,15 100,17 120,19"/></svg></div>
           <div class="kpi"><div class="l">Halo lift est.</div><div class="v">+$34K</div><div class="c up"><span class="ar">▲</span>14.3%</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#0FA968" stroke-width="2" points="0,22 20,20 40,18 60,14 80,13 100,9 120,7"/></svg></div>
         </div>
+        <div class="card">
+          <div class="ch"><span class="tg"></span><h3>Consolidated Revenue &amp; Spend</h3><span class="hint">all channels, top line to bottom line, reconciled with Triple Whale</span></div>
+          <div class="pace">
+            <div class="pc"><div class="pl">MTD revenue</div><div class="pv">$1.84M</div></div>
+            <div class="pc"><div class="pl">Yesterday</div><div class="pv">$71.2K</div></div>
+            <div class="pc"><div class="pl">Today so far</div><div class="pv">$18.4K</div></div>
+          </div>
+          <table>
+            <thead><tr><th>Line</th><th class="r">This month</th><th class="r">Share / MER</th></tr></thead>
+            <tbody>
+              <tr><td class="k">Revenue, Shopify DTC</td><td class="r">$1.18M</td><td class="r">64%</td></tr>
+              <tr><td class="k">Revenue, Amazon</td><td class="r">$372K</td><td class="r">20%</td></tr>
+              <tr><td class="k">Revenue, TikTok Shop</td><td class="r">$184K</td><td class="r">10%</td></tr>
+              <tr><td class="k">Revenue, B2B / Faire</td><td class="r">$104K</td><td class="r">6%</td></tr>
+              <tr><td class="k">Total revenue</td><td class="r"><b>$1.84M</b></td><td class="r">100%</td></tr>
+              <tr><td class="k">Ad spend (Meta, Google, TikTok, Amazon)</td><td class="r">$399K</td><td class="r">4.6x</td></tr>
+              <tr><td class="k">Influencer spend (via growth hub)</td><td class="r">$11K</td><td class="r"><span class="chip blu">not in TW</span></td></tr>
+              <tr><td class="k">TV (estimate, reconciles weekly)</td><td class="r">$6K</td><td class="r"><span class="chip blu">not in TW</span></td></tr>
+              <tr><td class="k">Total spend</td><td class="r"><b>$416K</b></td><td class="r">4.4x MER</td></tr>
+              <tr><td class="k">COGS</td><td class="r">$552K</td><td class="r">30%</td></tr>
+              <tr><td class="k">Contribution (bottom line)</td><td class="r"><b>$872K</b></td><td class="r">47%</td></tr>
+            </tbody>
+          </table>
+          <div class="note"><b>The view Sarah asked to lead with.</b> Top line to all spend (including influencer and TV that Triple Whale does not ingest) to COGS to bottom line, in one place. Numbers reconcile with Triple Whale so a client never sees two different figures in two tools.</div>
+        </div>
         <div class="grid">
           <div class="card">
             <div class="ch"><span class="tg"></span><h3>Spend vs Revenue by day</h3><span class="hint">last 14 days</span></div>
@@ -677,8 +719,36 @@
             </tbody>
           </table>
         </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="ch"><span class="tg"></span><h3>New Customer ROAS by channel</h3><span class="hint">source: Triple Whale</span></div>
+            <table>
+              <thead><tr><th>Channel</th><th class="r">New cust. ROAS</th><th class="r">Repeat ROAS</th><th class="r">% new</th></tr></thead>
+              <tbody>
+                <tr><td class="k">Meta</td><td class="r">2.1x</td><td class="r">6.4x</td><td class="r">63%</td></tr>
+                <tr><td class="k">Google</td><td class="r">1.8x</td><td class="r">5.2x</td><td class="r">48%</td></tr>
+                <tr><td class="k">TikTok</td><td class="r">2.4x</td><td class="r">3.1x</td><td class="r">71%</td></tr>
+                <tr><td class="k">Amazon</td><td class="r">1.6x</td><td class="r">4.0x</td><td class="r">55%</td></tr>
+              </tbody>
+            </table>
+            <div class="note">New vs repeat ROAS is the call you make media decisions on. <b>We pull this straight from Triple Whale</b>, we do not recompute it, so it always matches their numbers.</div>
+          </div>
+          <div class="card">
+            <div class="ch"><span class="tg"></span><h3>Traffic &amp; conversion by source</h3><span class="hint">last 30 days</span></div>
+            <table>
+              <thead><tr><th>Source</th><th class="r">Sessions</th><th class="r">% traffic</th><th class="r">Conv %</th><th class="r">Revenue</th></tr></thead>
+              <tbody>
+                <tr><td class="k">Paid (Meta/Google/TikTok)</td><td class="r">312K</td><td class="r">48%</td><td class="r">2.1%</td><td class="r">$686K</td></tr>
+                <tr><td class="k">Organic / Direct</td><td class="r">201K</td><td class="r">31%</td><td class="r">3.4%</td><td class="r">$642K</td></tr>
+                <tr><td class="k">Email / SMS (Klaviyo)</td><td class="r">88K</td><td class="r">14%</td><td class="r">5.6%</td><td class="r">$372K</td></tr>
+                <tr><td class="k">Referral / Affiliate</td><td class="r">47K</td><td class="r">7%</td><td class="r">2.8%</td><td class="r">$140K</td></tr>
+              </tbody>
+            </table>
+            <div class="note"><b>Sarah's ask:</b> see what share of traffic is organic vs paid vs email, and the revenue behind each, not just spend.</div>
+          </div>
+        </div>
         <div class="note"><b>The halo effect.</b> Senco 360 reads patterns across every channel and spots where paid spend in one place quietly lifts sales in another. When Meta spend climbs, Batch CBD sees Amazon orders, branded search, and direct traffic follow a few days later, within a reasonable margin. This month the AI estimates +$34K in sales driven that way. Exact click attribution cannot capture this because the click and the sale happen in different places.</div>
-        <div class="note"><b>Works with Triple Whale, not against it.</b> Senco 360 plugs into Triple Whale by API and sits above it, putting every channel and KPI on one screen. We do not replace it. Exact customer-journey attribution stays with Triple Whale. Senco 360 adds the cross-channel halo view on top.</div>
+        <div class="note"><b>Works with Triple Whale, not against it.</b> Senco 360 plugs into Triple Whale by API, sits above it, and pulls its numbers so everything reconciles. We do not replace it. Exact customer-journey attribution and new-customer ROAS stay with Triple Whale. Senco 360 adds the consolidated view and the cross-channel halo on top.</div>
       </section>
 
       <!-- ===================== RETENTION ===================== -->
@@ -702,7 +772,41 @@
       </section>
 
       <!-- ===================== FINANCE / ASK ===================== -->
-      <section class="view" id="finance"><div class="vhead"><h2>Finance</h2><p>Cash, margin and payment metrics from QuickBooks and Senco Payments. Coming in a later release.</p></div><div class="card"><div class="note">This view is on the roadmap. The MVP focuses on forecasting, lot health and marketing first.</div></div></section>
+      <section class="view" id="cashflow">
+        <div class="phead"><div class="pico"><svg viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><h2>Cash Flow</h2><p>The through-line. Money in, money out, and what you can safely spend. This is where marketing, inventory and payment terms all meet, the view Ryan asked us to anchor on.</p></div></div>
+        <div class="kpis">
+          <div class="kpi"><div class="l">Cash on hand</div><div class="v">$1.25M</div><div class="c up"><span class="ar">▲</span>4.1%</div></div>
+          <div class="kpi"><div class="l">Net cash flow 30d</div><div class="v">+$118K</div><div class="c up"><span class="ar">▲</span>9%</div></div>
+          <div class="kpi"><div class="l">Open POs</div><div class="v">$642K</div><div class="c dn"><span class="ar">▲</span>2 due</div></div>
+          <div class="kpi"><div class="l">Avg supplier terms</div><div class="v">14d</div><div class="c up"><span class="ar">▲</span>net 30 goal</div></div>
+          <div class="kpi"><div class="l">Cash conversion</div><div class="v">38d</div><div class="c up"><span class="ar">▼</span>3d</div></div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <div class="ch"><span class="tg"></span><h3>13-week cash projection</h3><span class="hint">source: QuickBooks, bank, Senco Payments, open POs</span></div>
+            <svg viewBox="0 0 640 220" width="100%" height="220" preserveAspectRatio="none">
+              <defs><linearGradient id="cf_area" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#16C39A" stop-opacity="0.18"/><stop offset="100%" stop-color="#16C39A" stop-opacity="0"/></linearGradient></defs>
+              <line x1="0" y1="40" x2="640" y2="40" stroke="#EEF2F7" stroke-dasharray="4 4"/><line x1="0" y1="90" x2="640" y2="90" stroke="#EEF2F7" stroke-dasharray="4 4"/><line x1="0" y1="140" x2="640" y2="140" stroke="#EEF2F7" stroke-dasharray="4 4"/><line x1="0" y1="190" x2="640" y2="190" stroke="#EEF2F7" stroke-dasharray="4 4"/>
+              <path d="M0,120 L53,110 L106,135 L160,128 L213,150 L266,140 L320,118 L373,128 L426,100 L480,112 L533,86 L586,96 L640,72 L640,220 L0,220 Z" fill="url(#cf_area)"/>
+              <polyline fill="none" stroke="#16C39A" stroke-width="3" points="0,120 53,110 106,135 160,128 213,150 266,140 320,118 373,128 426,100 480,112 533,86 586,96 640,72"/>
+            </svg>
+            <div class="legend"><span><i style="background:#16C39A"></i>Projected cash balance</span><span style="color:var(--muted)">dip in wk 5 = Gummies PO clears</span></div>
+          </div>
+          <div class="card" id="scenario">
+            <div class="ch"><span class="tg"></span><h3>Scenario planner</h3><span class="hint">what a spreadsheet can't do</span></div>
+            <div class="slider"><label>Supplier payment terms <b id="v_terms">30 days</b></label><input type="range" min="0" max="60" step="30" value="30" id="s_terms" oninput="recalcCash()"></div>
+            <div class="slider"><label>Monthly Meta spend <b id="v_meta">$214K</b></label><input type="range" min="150000" max="500000" step="10000" value="214000" id="s_meta" oninput="recalcCash()"></div>
+            <div class="slider"><label>Inventory buy this month <b id="v_inv">$300K</b></label><input type="range" min="0" max="600000" step="25000" value="300000" id="s_inv" oninput="recalcCash()"></div>
+            <div class="scenout">
+              <div class="so"><div class="sl">Cash in 90 days</div><div class="sv" id="o_cash">$1.61M</div></div>
+              <div class="so"><div class="sl">Lowest week</div><div class="sv" id="o_low">$900K</div></div>
+              <div class="so"><div class="sl">Freed by terms</div><div class="sv" id="o_terms">$95K</div></div>
+            </div>
+            <div class="note" id="o_sentence">Drag the sliders to see how terms, ad spend and inventory move your cash.</div>
+          </div>
+        </div>
+        <div class="note"><b>Why this is the anchor (Ryan).</b> Cash flow ties marketing, LTV, inventory and payment terms together, and scenario planning, like "what if I get 30-day terms, or scale Meta faster", is exactly what a spreadsheet can't do well. Because Senco already processes the payments, this same data later opens embedded capital and lending.</div>
+      </section>
       <section class="view" id="ask"><div class="vhead"><h2>Ask the data</h2><p>Ask any question in plain English and Senco 360 queries across all sources. Coming in a later release.</p></div><div class="card"><div class="note">The AI assistant is out of the MVP scope on purpose, and arrives after the core views are solid.</div></div></section>
 
       <div class="foot">Senco 360 · G2G MVP prototype for the Senco team · Sample data, not live · Built from the Batch / FOCL feedback</div>
@@ -811,6 +915,26 @@
     const v = i.value.trim(); if(!v) return;
     i.value=''; ask(v);
   }
+
+  /* ---- cash flow scenario planner (demo) ---- */
+  function fmtCash(n){ return Math.abs(n)>=1e6 ? '$'+(n/1e6).toFixed(2)+'M' : '$'+Math.round(n/1000)+'K'; }
+  function recalcCash(){
+    const t=+document.getElementById('s_terms').value, m=+document.getElementById('s_meta').value, iv=+document.getElementById('s_inv').value;
+    document.getElementById('v_terms').textContent = t+' days';
+    document.getElementById('v_meta').textContent = fmtCash(m);
+    document.getElementById('v_inv').textContent = fmtCash(iv);
+    const cash=1250000, net=120000;
+    const termsCash = t/30*95000;
+    const spend = -(m-214000);
+    const invd = -(iv-300000);
+    const proj = cash + net*3 + termsCash + spend + invd;
+    const low = cash*0.72 + termsCash + spend*0.5 + invd*0.6;
+    document.getElementById('o_cash').textContent = fmtCash(proj);
+    document.getElementById('o_low').textContent = fmtCash(low);
+    document.getElementById('o_terms').textContent = fmtCash(termsCash);
+    document.getElementById('o_sentence').innerHTML = 'At <b>'+fmtCash(m)+'/mo</b> on Meta, <b>'+t+'-day</b> terms and a <b>'+fmtCash(iv)+'</b> inventory buy, you are projected to hold <b>'+fmtCash(proj)+'</b> in 90 days, with a low point near <b>'+fmtCash(low)+'</b>.';
+  }
+  if(document.getElementById('s_terms')) recalcCash();
 </script>
 </body>
 </html>
