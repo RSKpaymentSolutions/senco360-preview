@@ -340,6 +340,35 @@
   .phead .pico svg{width:21px;height:21px;stroke:var(--teal);fill:none}
   .phead h2{font-size:21px;font-weight:800;letter-spacing:-.5px;color:var(--ink);margin:0 0 2px;line-height:1.15}
   .phead p{font-size:12.5px;color:var(--gray);margin:0;line-height:1.4}
+
+  /* ===== AI EXPLAIN TOGGLES + CHAT ===== */
+  .explain{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;color:var(--blue);background:#E9F1FE;border:1px solid #D4E2FB;border-radius:999px;padding:4px 10px;cursor:pointer;transition:background .15s ease,transform .15s ease;white-space:nowrap}
+  .explain:hover{background:#DCE8FE;transform:translateY(-1px)}
+  .aiexp{margin-top:0;border:1px solid var(--rule);background:linear-gradient(120deg,rgba(37,99,235,.06),rgba(22,195,154,.09));border-radius:12px;padding:0 15px;max-height:0;overflow:hidden;opacity:0;transition:max-height .28s ease,opacity .2s ease,padding .28s ease,margin-top .2s ease}
+  .aiexp.open{max-height:280px;opacity:1;padding:13px 15px;margin-top:14px}
+  .aiexp .ttl{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--blue);margin-bottom:7px}
+  .aiexp p{font-size:12.5px;line-height:1.55;color:var(--gray);margin:0}
+  .aiexp p b{color:var(--ink2);font-weight:700}
+
+  .chatpanel{position:fixed;right:26px;bottom:92px;width:344px;max-width:calc(100vw - 40px);background:var(--surface);border:1px solid var(--rule);border-radius:18px;box-shadow:0 24px 60px rgba(15,27,45,.26);display:none;flex-direction:column;overflow:hidden;z-index:30}
+  .chatpanel.open{display:flex;animation:fade .2s ease}
+  .chathead{background:var(--grad);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px}
+  .chathead .ci{width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.20);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+  .chathead .ct{font-size:13.5px;font-weight:800;letter-spacing:.2px}
+  .chathead .cs{font-size:10px;opacity:.92}
+  .chathead .cx{margin-left:auto;cursor:pointer;font-size:20px;line-height:1;opacity:.9}
+  .chathead .cx:hover{opacity:1}
+  .chatbody{padding:14px;display:flex;flex-direction:column;gap:10px;max-height:340px;overflow-y:auto;background:var(--bg)}
+  .msg{font-size:12.5px;line-height:1.5;padding:10px 12px;border-radius:13px;max-width:86%}
+  .msg.ai{background:var(--surface);border:1px solid var(--rule);color:var(--ink2);align-self:flex-start;border-bottom-left-radius:4px}
+  .msg.me{background:var(--bluebtn);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+  .msg b{font-weight:700}
+  .suggs{display:flex;flex-wrap:wrap;gap:7px;padding:0 14px 12px;background:var(--bg)}
+  .sugg{font-size:11px;font-weight:600;color:var(--blue);background:#E9F1FE;border:1px solid #D4E2FB;border-radius:999px;padding:6px 11px;cursor:pointer}
+  .sugg:hover{background:#DCE8FE}
+  .chatin{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--rule);background:var(--surface)}
+  .chatin input{flex:1;border:1px solid var(--rule);border-radius:10px;padding:9px 12px;font-size:12.5px;color:var(--ink2);background:var(--soft);outline:none}
+  .chatin .send{background:var(--bluebtn);color:#fff;border:none;border-radius:10px;width:40px;cursor:pointer;font-size:16px}
 </style>
 </head>
 <body>
@@ -682,7 +711,23 @@
   </div>
 </div>
 
-<div class="assistant" title="Ask Senco">S</div>
+<div class="assistant" title="Ask Senco" onclick="toggleChat()">S</div>
+<div class="chatpanel" id="chatpanel">
+  <div class="chathead">
+    <div class="ci">S</div>
+    <div><div class="ct">Ask Senco</div><div class="cs">AI across all 11 sources</div></div>
+    <div class="cx" onclick="toggleChat()">&times;</div>
+  </div>
+  <div class="chatbody" id="chatbody">
+    <div class="msg ai">Hi Raffaele 👋 I can read across all your connected data. Ask me anything, or try one of these.</div>
+  </div>
+  <div class="suggs">
+    <div class="sugg" onclick="ask(this.textContent)">Which SKU do I reorder first?</div>
+    <div class="sugg" onclick="ask(this.textContent)">Why are refunds up?</div>
+    <div class="sugg" onclick="ask(this.textContent)">Where is my ad spend most efficient?</div>
+  </div>
+  <div class="chatin"><input id="chatinput" placeholder="Ask anything about your data..." onkeydown="if(event.key==='Enter')sendChat()"><button class="send" onclick="sendChat()">&rarr;</button></div>
+</div>
 
 <script>
   function go(el){
@@ -702,6 +747,69 @@
     document.getElementById('themeIcon').innerHTML = dark
       ? '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>'
       : '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
+  }
+
+  /* ---- per-section AI explanations (demo, canned) ---- */
+  const AIEXP = {
+    "Revenue vs Ad Spend":"Revenue is up 12% while spend rose only 6%, so you are getting more efficient. The gap widens late in the month. <b>What to do:</b> keep feeding the channels carrying it.",
+    "Reorder Soon":"Two SKUs are close to stocking out: Gummies (6 days) and Topical Relief (9 days). <b>What to do:</b> place those POs this week before demand eats the buffer.",
+    "Lot Health":"One lot, #B-2231, is flagged. Refunds and support tickets are both above the healthy range. <b>What to do:</b> open Lot Health and check the leaking-sachet issue before it spreads.",
+    "Marketing by Channel":"Meta is your volume engine at 5.1x, and there is an estimated +$34K halo lift into Amazon that last-click misses. <b>What to do:</b> do not judge Meta on last click alone.",
+    "Retention":"84% of orders are returning or subscription customers, a sticky base. <b>What to do:</b> grow subscriptions, they are your most predictable revenue.",
+    "Connected Sources":"All 11 sources synced cleanly this morning, nothing stale. You are looking at fresh numbers.",
+    "Gummies 25mg, Demand Forecast":"Demand is trending up and the forecast (green) projects more growth. At this pace you reorder within 6 days. <b>What to do:</b> place the PO now so stock lands before zero.",
+    "Reorder Recommendations":"Two urgent POs: Gummies by Jun 20 and Topical Relief by Jun 23. Quantities already include a 30-day buffer plus supplier lead time.",
+    "All SKUs":"Two SKUs are red (under 10 days of cover), two amber, two healthy. <b>What to do:</b> act on the red ones first, the green ones can wait.",
+    "Lots, ranked by risk":"#B-2231 is the only flagged lot, the rest are healthy. <b>What to do:</b> focus the quality review there.",
+    "Lot #B-2231 detail":"Refunds, tickets and reviews all point to leaking sachets, and the signal showed up early while refunds were still low. <b>What to do:</b> contact affected customers and check that production run.",
+    "Connected customers":"14,200 orders on this lot are matched to customer emails, and 12,490 have not contacted support yet. <b>What to do:</b> get ahead of it with a proactive replacement offer.",
+    "Spend vs Revenue by day":"Revenue is outpacing spend, so blended MER is improving. The trend is healthy. <b>What to do:</b> keep feeding the efficient channels.",
+    "Channel performance":"Meta leads on volume, Email leads on efficiency at 11.2x, and the striped bar is the AI halo estimate. <b>What to do:</b> judge Meta on blended impact, not last click.",
+    "Channel detail":"Email has the best ROAS but limited scale; Meta has the best scale. <b>What to do:</b> scale Meta for growth, lean on Email for margin.",
+    "Customer Mix (30d)":"Returning plus subscription is 84% of orders, a strong base. <b>What to do:</b> push subscriptions, they are the most predictable revenue.",
+    "Repeat Rate Trend":"Repeat rate has climbed steadily for six months. <b>What to do:</b> keep doing whatever changed last quarter, it is working."
+  };
+  document.querySelectorAll('.card').forEach(card=>{
+    const h3 = card.querySelector('.ch h3');
+    if(!h3) return;
+    const text = AIEXP[h3.textContent.trim()];
+    if(!text) return;
+    const btn = document.createElement('span');
+    btn.className = 'explain';
+    btn.innerHTML = '✨ Explain';
+    const panel = document.createElement('div');
+    panel.className = 'aiexp';
+    panel.innerHTML = '<div class="ttl">✨ Senco AI</div><p>'+text+'</p>';
+    card.appendChild(panel);
+    btn.addEventListener('click', ()=>{
+      const open = panel.classList.toggle('open');
+      btn.innerHTML = open ? '✨ Hide' : '✨ Explain';
+    });
+    h3.insertAdjacentElement('afterend', btn);
+  });
+
+  /* ---- assistant chat (demo) ---- */
+  function toggleChat(){ document.getElementById('chatpanel').classList.toggle('open'); }
+  const CHAT_A = {
+    "Which SKU do I reorder first?":"Gummies 25mg. It has 6 days of cover, the lowest of any SKU. I would place a PO for about 42,000 units today to hold a 30-day buffer including lead time.",
+    "Why are refunds up?":"Most of the lift traces to lot #B-2231 (Gummies): 3.1% refunds and 8.1% support tickets, both above normal. Top complaint is leaking sachets. Worth a quality check on that lot.",
+    "Where is my ad spend most efficient?":"Email and Meta. Email/Klaviyo returns 11.2x on small spend, and Meta drives the most new customers at 5.1x, plus an estimated +$34K halo lift into Amazon that last-click misses."
+  };
+  function addMsg(text, who){
+    const b = document.getElementById('chatbody');
+    const m = document.createElement('div');
+    m.className = 'msg '+who; m.innerHTML = text;
+    b.appendChild(m); b.scrollTop = b.scrollHeight;
+  }
+  function ask(q){
+    addMsg(q,'me');
+    const a = CHAT_A[q.trim()] || "In a live workspace I would query across Shopify, Meta, Amazon, Klaviyo, Gorgias and the rest to answer that. This is a prototype, so the responses here are sample.";
+    setTimeout(()=>addMsg(a,'ai'), 250);
+  }
+  function sendChat(){
+    const i = document.getElementById('chatinput');
+    const v = i.value.trim(); if(!v) return;
+    i.value=''; ask(v);
   }
 </script>
 </body>
