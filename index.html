@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Senco 360 MVP</title>
+<style>
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --teal:#16C39A; --teal2:#0FB48E; --green:#07F3AB;
+    --blue:#2563EB; --blue2:#3B82F6; --purple:#7C5CFC;
+    --ink:#0F1B2D; --ink2:#1E293B; --gray:#5B6B7B; --muted:#93A1B0;
+    --rule:#E6EBF1; --soft:#F1F5F9; --bg:#F4F8FC; --surface:#ffffff;
+    --grad:linear-gradient(120deg,#2563EB 0%,#16C39A 100%);
+    --bluebtn:linear-gradient(135deg,#3B82F6 0%,#2563EB 100%);
+    --tealbtn:linear-gradient(135deg,#22CBA0 0%,#0FB48E 100%);
+    --wash:linear-gradient(155deg,#E7F1FC 0%,#EBF6F1 48%,#E6F7ED 100%);
+    --up:#0FA968; --dn:#E0524A; --amb:#E8A33D;
+    --navpill:#E9F1FE; --navtext:#2563EB;
+  }
+  body.dark{
+    --ink:#EAF1F8; --ink2:#DCE6F0; --gray:#A7B4C2; --muted:#7C8A99;
+    --rule:#26313D; --soft:#19222C; --bg:#0C1117; --surface:#141C25;
+    --wash:linear-gradient(165deg,#0E151D 0%,#0F1820 55%,#0C1117 100%);
+    --navpill:rgba(37,99,235,.18); --navtext:#7FB0FF;
+  }
+  body, body *{ font-family:"Inter","Helvetica Neue",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+  html,body{ height:100%; }
+  body{ background:var(--bg); color:var(--ink2); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility; }
+  .app{ display:flex; min-height:100vh; }
+
+  /* ---------------- SIDEBAR ---------------- */
+  .side{ width:248px; background:var(--surface); border-right:1px solid var(--rule); flex-shrink:0; display:flex; flex-direction:column; position:sticky; top:0; height:100vh; }
+  .brandrow{ padding:22px 22px 20px; display:flex; align-items:center; gap:10px; }
+  .brandrow{ padding:24px 22px 22px; }
+  .brandlogo{ height:46px; width:auto; display:block; }
+  .navwrap{ padding:6px 14px; overflow-y:auto; flex:1; }
+  .nav{ display:flex; align-items:center; gap:12px; padding:11px 13px; border-radius:11px; font-size:13.5px; color:var(--ink2); cursor:pointer; margin-bottom:3px; font-weight:600; user-select:none; transition:background .15s ease, color .15s ease; }
+  .nav svg{ width:17px; height:17px; flex-shrink:0; stroke:#7C8A99; fill:none; stroke-width:2; }
+  .nav:hover{ background:var(--soft); }
+  .nav.on{ background:var(--navpill); color:var(--navtext); }
+  .nav.on svg{ stroke:var(--navtext); }
+  .nav .chev{ margin-left:auto; stroke:#B6C2CE; width:14px; height:14px; }
+  .nav .soon{ margin-left:auto; font-size:8px; background:var(--soft); color:var(--muted); border:1px solid var(--rule); padding:2px 7px; border-radius:20px; letter-spacing:.5px; font-weight:700; }
+  .userbox{ margin:12px 14px 16px; padding:11px 13px; border:1px solid var(--rule); border-radius:14px; background:var(--surface); box-shadow:0 1px 2px rgba(15,27,45,.04); display:flex; align-items:center; gap:11px; }
+  .userbox .uav{ width:36px; height:36px; border-radius:50%; background:#E9F1FE; color:var(--blue); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
+  .userbox .un{ font-size:12.5px; font-weight:700; color:var(--ink2); }
+  .userbox .ue{ font-size:10.5px; color:var(--muted); margin-top:1px; }
+
+  /* ---------------- MAIN ---------------- */
+  .main{ flex:1; min-width:0; background:var(--wash); }
+  .top{ background:var(--surface); border-bottom:1px solid var(--rule); padding:0 26px; height:62px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:6; box-shadow:0 1px 2px rgba(15,27,45,.03); }
+  .crumb{ font-size:12px; color:var(--muted); font-weight:600; }
+  .crumb b{ color:var(--ink2); }
+  .spacer{ flex:1; }
+  .ddown{ display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--rule); border-radius:11px; padding:8px 13px; font-size:12.5px; color:var(--ink2); font-weight:600; cursor:pointer; transition:background .15s ease, border-color .15s ease, box-shadow .15s ease; }
+  .ddown svg{ width:14px; height:14px; stroke:var(--muted); fill:none; stroke-width:2; }
+  .merchpill{ display:flex; align-items:center; gap:8px; background:var(--soft); border:1px solid var(--rule); border-radius:11px; padding:7px 12px; font-size:12px; font-weight:700; color:var(--ink2); cursor:pointer; transition:background .15s ease, border-color .15s ease, box-shadow .15s ease; }
+  .merchpill .mdot{ width:20px; height:20px; border-radius:6px; background:var(--tealbtn); color:#fff; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; }
+  .iconbtn{ width:38px; height:38px; border-radius:11px; border:1px solid var(--rule); background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background .15s ease, border-color .15s ease, box-shadow .15s ease; }
+  .iconbtn svg{ width:17px; height:17px; stroke:var(--gray); fill:none; stroke-width:2; }
+  .btn{ border:none; border-radius:999px; padding:10px 18px; font-size:12.5px; font-weight:700; cursor:pointer; color:#fff; display:inline-flex; align-items:center; gap:8px; transition:transform .15s ease, box-shadow .15s ease, filter .15s ease; }
+  .btn.blue{ background:var(--bluebtn); box-shadow:0 6px 16px -6px rgba(37,99,235,.45); }
+  .btn.teal{ background:var(--tealbtn); box-shadow:0 6px 16px -6px rgba(15,180,142,.45); }
+  .btn svg{ width:15px; height:15px; stroke:#fff; fill:none; stroke-width:2; }
+  .ava{ width:38px; height:38px; border-radius:50%; background:var(--grad); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; color:#fff; }
+
+  .wrap{ padding:26px 28px 56px; }
+  .view{ display:none; }
+  .view.on{ display:block; animation:fade .25s ease; }
+  @keyframes fade{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:none;} }
+
+  /* page header with icon tile */
+  .phead{ display:flex; align-items:flex-start; gap:14px; margin-bottom:22px; }
+  .phead .pico{ width:46px; height:46px; border-radius:13px; background:#E3F7F0; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .phead .pico svg{ width:22px; height:22px; stroke:var(--teal); fill:none; stroke-width:2; }
+  .phead h2{ font-size:23px; font-weight:800; letter-spacing:-.5px; color:var(--ink); }
+  .phead p{ font-size:13px; color:var(--gray); margin-top:4px; line-height:1.5; max-width:720px; }
+  .vhead{ margin-bottom:20px; } /* legacy alias used in some views */
+  .vhead h2{ font-size:23px; font-weight:800; letter-spacing:-.5px; color:var(--ink); }
+  .vhead p{ font-size:13px; color:var(--gray); margin-top:5px; line-height:1.5; max-width:720px; }
+
+  /* AI FOCUS */
+  .focus{ background:linear-gradient(120deg,rgba(37,99,235,.06),rgba(22,195,154,.10)); border:1px solid var(--rule); border-radius:18px; padding:20px 22px; margin-bottom:22px; }
+  .focus .hd{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .focus .hd .ico{ width:30px; height:30px; border-radius:9px; background:var(--tealbtn); display:flex; align-items:center; justify-content:center; font-size:14px; color:#fff; }
+  .focus .hd .t{ font-size:13px; font-weight:800; color:var(--ink); }
+  .focus .hd .sub{ font-size:11px; color:var(--teal); font-weight:600; }
+  .fitems{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .fitem{ background:var(--surface); border:1px solid var(--rule); border-radius:14px; padding:14px 15px; cursor:pointer; transition:.15s; }
+  .fitem:hover{ box-shadow:0 6px 18px rgba(15,27,45,.08); transform:translateY(-1px); }
+  .fitem .tag{ font-size:8.5px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; padding:3px 8px; border-radius:20px; display:inline-block; margin-bottom:8px; }
+  .tag.act{ background:#FDECEA; color:#C5392F; }
+  .tag.watch{ background:#FCF2E2; color:#B97B1D; }
+  .tag.win{ background:#E3F7F0; color:#0A8A5C; }
+  .fitem p{ font-size:12.5px; line-height:1.5; color:var(--gray); }
+  .fitem p b{ color:var(--ink2); }
+  .fitem .cta{ font-size:11px; color:var(--blue); margin-top:9px; font-weight:700; }
+
+  /* KPI */
+  .kpis{ display:grid; grid-template-columns:repeat(5,1fr); gap:15px; margin-bottom:22px; }
+  .kpi{ background:var(--surface); border:1.5px solid var(--rule); border-radius:16px; padding:15px 16px; }
+  .kpi .l{ font-size:10px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:8px; }
+  .kpi .l::before{ content:""; width:18px; height:18px; border-radius:6px; background:#E3F7F0; flex-shrink:0; box-shadow:inset 0 0 0 5px #10B98A; }
+  .kpis .kpi:nth-child(3n+1){ border-color:#A7E7D4; } .kpis .kpi:nth-child(3n+1) .l::before{ background:#E3F7F0; box-shadow:inset 0 0 0 5px #10B98A; }
+  .kpis .kpi:nth-child(3n+2){ border-color:#BCD4FB; } .kpis .kpi:nth-child(3n+2) .l::before{ background:#E9F1FE; box-shadow:inset 0 0 0 5px #2563EB; }
+  .kpis .kpi:nth-child(3n+3){ border-color:#D7CCFB; } .kpis .kpi:nth-child(3n+3) .l::before{ background:#F1ECFE; box-shadow:inset 0 0 0 5px #7C5CFC; }
+  .kpi .v{ font-size:26px; font-weight:800; letter-spacing:-.6px; margin:9px 0 5px; color:var(--ink); }
+  .kpi .c{ font-size:11px; font-weight:700; display:flex; align-items:center; gap:4px; }
+  .kpi .c.up{ color:var(--up); } .kpi .c.dn{ color:var(--dn); }
+  .kpi .c .ar{ font-size:10px; }
+  .spark{ height:26px; margin-top:9px; width:100%; }
+
+  /* GRID + CARD */
+  .grid{ display:grid; grid-template-columns:1.55fr 1fr; gap:18px; margin-bottom:18px; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px; }
+  .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-bottom:18px; }
+  .card{ background:var(--surface); border:1px solid var(--rule); border-radius:18px; padding:19px 19px 17px; box-shadow:0 1px 2px rgba(15,27,45,.04), 0 8px 24px -12px rgba(15,27,45,.10); transition:box-shadow .2s ease, transform .2s ease; }
+  .card .ch{ display:flex; align-items:center; margin-bottom:16px; }
+  .card .ch .tg{ width:24px; height:24px; border-radius:8px; background:#E3F7F0; margin-right:11px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .card .ch .tg::after{ content:""; width:9px; height:9px; border-radius:3px; background:var(--tealbtn); }
+  .card .ch h3{ font-size:14.5px; font-weight:800; color:var(--ink); }
+  .card .ch .hint{ font-size:10.5px; color:var(--muted); margin-left:9px; font-weight:500; }
+  .card .ch .open{ margin-left:auto; font-size:11.5px; color:var(--blue); font-weight:700; cursor:pointer; transition:opacity .15s ease, transform .15s ease; }
+
+  .legend{ display:flex; gap:16px; margin-bottom:6px; }
+  .legend span{ font-size:10.5px; color:var(--gray); display:flex; align-items:center; gap:6px; }
+  .legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+
+  /* TABLE */
+  table{ width:100%; border-collapse:collapse; }
+  thead th{ font-size:9.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--muted); text-align:left; padding:0 10px 11px 0; }
+  thead th.r, tbody td.r{ text-align:right; padding-right:0; }
+  tbody td{ font-size:12.5px; color:var(--gray); padding:11px 10px 11px 0; border-top:1px solid var(--rule); }
+  tbody tr:hover td{ background:var(--soft); }
+  tbody td.k{ font-weight:700; color:var(--ink2); }
+  .chip{ font-size:10px; font-weight:800; padding:3px 10px; border-radius:20px; letter-spacing:.3px; white-space:nowrap; }
+  .chip.red{ background:#FDECEA; color:#C5392F; }
+  .chip.amb{ background:#FCF2E2; color:#B97B1D; }
+  .chip.grn{ background:#E3F7F0; color:#0A8A5C; }
+  .chip.blu{ background:#E9F1FE; color:#1A63C9; }
+  .stars{ color:var(--amb); font-size:11px; letter-spacing:1px; }
+
+  /* CHANNEL BARS */
+  .chan{ margin-bottom:13px; }
+  .chan:last-child{ margin-bottom:0; }
+  .chan .cr{ display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:5px; }
+  .chan .cr .nm{ font-weight:700; color:var(--ink2); }
+  .chan .cr .vv{ color:var(--muted); }
+  .chan .track{ height:9px; background:var(--soft); border-radius:6px; overflow:hidden; }
+  .chan .fill{ height:100%; border-radius:6px; background:var(--grad); }
+  .chan.halo .fill{ background:repeating-linear-gradient(45deg,#2563EB,#2563EB 5px,#5b94f5 5px,#5b94f5 10px); }
+
+  .note{ margin-top:14px; background:var(--soft); border:1px dashed #9FD9C8; border-radius:12px; padding:12px 14px; font-size:11.5px; color:var(--gray); line-height:1.55; }
+  .note b{ color:var(--ink2); }
+
+  /* DONUT */
+  .reten{ display:flex; align-items:center; gap:18px; }
+  .donut{ width:120px; height:120px; border-radius:50%; flex-shrink:0; background:conic-gradient(var(--blue) 0 64%, var(--teal) 64% 84%, #E0E7EF 84% 100%); display:flex; align-items:center; justify-content:center; }
+  .donut .hole{ width:80px; height:80px; background:var(--surface); border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .donut .hole b{ font-size:22px; font-weight:800; color:var(--ink); }
+  .donut .hole span{ font-size:9px; color:var(--muted); letter-spacing:.5px; }
+  .rleg{ flex:1; }
+  .rleg .ri{ display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--gray); margin-bottom:10px; }
+  .rleg .ri i{ width:10px; height:10px; border-radius:3px; }
+  .rleg .ri b{ margin-left:auto; color:var(--ink2); font-weight:700; }
+
+  .mini{ font-size:10.5px; color:var(--muted); font-weight:600; letter-spacing:.2px; }
+  .big{ font-size:30px; font-weight:800; letter-spacing:-.6px; color:var(--ink); }
+  .pill{ font-size:10px; font-weight:800; padding:4px 11px; border-radius:20px; background:#E9F1FE; color:var(--blue); }
+  .bars{ display:flex; align-items:flex-end; gap:9px; height:150px; }
+  .bars .b{ flex:1; background:var(--grad); border-radius:6px 6px 0 0; opacity:.92; }
+  .bars .b.alt{ background:#D8E0E9; }
+  .barx{ display:flex; gap:9px; margin-top:7px; }
+  .barx span{ flex:1; font-size:9px; color:var(--muted); text-align:center; }
+
+  .src{ display:flex; flex-wrap:wrap; gap:8px; }
+  .src span{ font-size:10.5px; font-weight:600; color:var(--ink2); background:var(--soft); border:1px solid var(--rule); border-radius:8px; padding:6px 11px; }
+  .src span.dot::before{ content:""; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--up); margin-right:7px; vertical-align:middle; }
+
+  .foot{ text-align:center; font-size:10.5px; color:var(--muted); padding:24px 0 4px; }
+
+  /* floating assistant */
+  .assistant{ position:fixed; right:26px; bottom:26px; width:54px; height:54px; border-radius:50%; background:var(--tealbtn); box-shadow:0 8px 22px rgba(15,180,142,.4); display:flex; align-items:center; justify-content:center; color:#fff; font-size:22px; font-weight:800; cursor:pointer; z-index:20; transition:transform .15s ease, box-shadow .15s ease; }
+  .assistant:hover{ transform:scale(1.05); box-shadow:0 12px 28px rgba(15,180,142,.5); }
+
+  /* ---------------- POLISH PASS (additive only) ---------------- */
+
+  /* Crisp, tight headings */
+  .phead h2, .vhead h2{ -webkit-font-smoothing:antialiased; }
+  .card .ch h3{ letter-spacing:-.2px; -webkit-font-smoothing:antialiased; }
+
+  /* Tabular numerals so KPI and table columns align */
+  .kpi .v, .kpi .c, .big, .donut .hole b{ font-variant-numeric:tabular-nums; }
+  tbody td.r, thead th.r{ font-variant-numeric:tabular-nums; }
+  .kpi .v{ -webkit-font-smoothing:antialiased; }
+
+  /* Subtle card hover lift */
+  .card:hover{ box-shadow:0 1px 2px rgba(15,27,45,.05), 0 14px 32px -14px rgba(15,27,45,.16); transform:translateY(-1px); }
+
+  /* Top-bar control hover states */
+  .iconbtn:hover{ background:var(--soft); border-color:var(--rule); box-shadow:0 2px 6px rgba(15,27,45,.06); }
+  .ddown:hover{ background:var(--soft); box-shadow:0 2px 6px rgba(15,27,45,.06); }
+  .merchpill:hover{ background:var(--rule); box-shadow:0 2px 6px rgba(15,27,45,.06); }
+
+  /* Button hover lift */
+  .btn:hover{ transform:translateY(-1px); filter:brightness(1.04); }
+  .btn.blue:hover{ box-shadow:0 9px 20px -6px rgba(37,99,235,.55); }
+  .btn.teal:hover{ box-shadow:0 9px 20px -6px rgba(15,180,142,.55); }
+
+  /* Card section link hover */
+  .card .ch .open:hover{ opacity:.78; transform:translateX(1px); }
+
+  /* Comfortable table rows with smooth hover */
+  tbody td{ transition:background .12s ease; }
+  tbody tr:first-child td{ border-top:none; }
+
+  /* Refined AI insight banner */
+  .focus{ box-shadow:0 1px 2px rgba(15,27,45,.04), 0 10px 30px -16px rgba(37,99,235,.18); }
+
+  /* Custom scrollbar, light and dark aware */
+  .navwrap{ scrollbar-width:thin; scrollbar-color:var(--rule) transparent; }
+  *::-webkit-scrollbar{ width:10px; height:10px; }
+  *::-webkit-scrollbar-track{ background:transparent; }
+  *::-webkit-scrollbar-thumb{ background:var(--rule); border-radius:999px; border:2px solid transparent; background-clip:padding-box; }
+  *::-webkit-scrollbar-thumb:hover{ background:var(--muted); border:2px solid transparent; background-clip:padding-box; }
+
+  /* Soften shadows in dark theme so cards do not look heavy */
+  body.dark .card{ box-shadow:0 1px 2px rgba(0,0,0,.30), 0 10px 26px -14px rgba(0,0,0,.50); }
+  body.dark .card:hover{ box-shadow:0 1px 2px rgba(0,0,0,.35), 0 16px 34px -16px rgba(0,0,0,.55); }
+  body.dark .top{ box-shadow:0 1px 2px rgba(0,0,0,.35); }
+  body.dark .focus{ box-shadow:0 1px 2px rgba(0,0,0,.30), 0 12px 30px -18px rgba(37,99,235,.30); }
+  body.dark .iconbtn:hover, body.dark .ddown:hover, body.dark .merchpill:hover{ box-shadow:0 2px 6px rgba(0,0,0,.40); }
+
+  /* ================= FLEET POLISH PASS ================= */
+  /* --- sidebar --- */
+  .side{width:248px;flex:0 0 248px;background:var(--surface);border-right:1px solid var(--rule);display:flex;flex-direction:column;padding:18px 14px 14px;box-sizing:border-box}
+  .brandrow{display:flex;align-items:center;padding:6px 8px 20px}
+  .brandlogo{height:46px;width:auto;display:block}
+  .navwrap{display:flex;flex-direction:column;gap:4px;flex:1 1 auto;overflow-y:auto}
+  .nav{display:flex;align-items:center;gap:11px;padding:12px 12px;border-radius:12px;color:var(--ink);font-size:14px;font-weight:500;line-height:1;cursor:pointer;border:0;background:transparent;transition:background .15s ease,color .15s ease;letter-spacing:.1px}
+  .nav svg{width:19px;height:19px;flex:0 0 19px;transition:stroke .15s ease}
+  .nav:hover{background:var(--soft)}
+  .nav.on{background:var(--navpill);color:var(--navtext);font-weight:600}
+  .nav.on svg{stroke:var(--navtext)}
+  .nav .soon{margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);background:var(--soft);padding:3px 7px;border-radius:999px;line-height:1}
+  .userbox{margin-top:12px;display:flex;align-items:center;gap:10px;padding:10px 11px;border:1px solid var(--rule);border-radius:14px;background:var(--surface);box-shadow:0 1px 2px rgba(15,27,45,.04)}
+  .userbox .uav{flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:var(--navpill);color:var(--navtext);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;letter-spacing:.3px}
+  .userbox .un{font-size:13px;font-weight:700;color:var(--ink);line-height:1.2;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .userbox .ue{font-size:11px;color:var(--muted);line-height:1.3;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* --- top bar / buttons / pill tags --- */
+  .top{background:var(--surface);height:62px;padding:0 26px;gap:14px;border-bottom:1px solid var(--rule);box-shadow:0 1px 0 rgba(15,27,45,.02),0 2px 10px rgba(15,27,45,.025)}
+  .crumb{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--muted);letter-spacing:-.1px}
+  .crumb b{color:var(--ink);font-weight:800}
+  .spacer{flex:1}
+  .ddown,.merchpill{display:flex;align-items:center;gap:8px;height:38px;padding:0 13px;background:var(--surface);border:1px solid var(--rule);border-radius:11px;font-size:12.5px;font-weight:600;color:var(--ink2);cursor:pointer;transition:all .15s ease}
+  .ddown:hover,.merchpill:hover{border-color:#D4DEE9;background:var(--soft)}
+  .ddown svg{width:14px;height:14px;stroke:var(--muted);flex:none}
+  .iconbtn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid var(--rule);border-radius:11px;background:var(--surface);color:var(--muted);cursor:pointer;transition:all .15s ease}
+  .iconbtn:hover{background:var(--soft);border-color:#D4DEE9;color:var(--ink2)}
+  .iconbtn svg{width:17px;height:17px;stroke:currentColor}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:38px;padding:0 18px;border:none;border-radius:999px;font-size:12.5px;font-weight:700;letter-spacing:-.1px;color:#fff;cursor:pointer;white-space:nowrap;transition:transform .15s ease,box-shadow .15s ease,filter .15s ease}
+  .btn svg{width:15px;height:15px;stroke:currentColor;flex:none}
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.04)}
+  .btn:active{transform:translateY(0)}
+  .btn.blue{background:var(--bluebtn);box-shadow:0 4px 14px rgba(37,99,235,.30)}
+  .btn.blue:hover{box-shadow:0 6px 18px rgba(37,99,235,.38)}
+  .btn.teal{background:var(--tealbtn);box-shadow:0 4px 14px rgba(22,195,154,.30)}
+  .btn.teal:hover{box-shadow:0 6px 18px rgba(22,195,154,.38)}
+  .ava{width:38px;height:38px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex:none;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}
+  .ava:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(15,27,45,.18)}
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:#E9F1FE;color:var(--blue);border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:-.1px;line-height:1;cursor:pointer;transition:background .15s ease,transform .15s ease}
+  .pill:hover{background:#DCE8FE;transform:translateY(-1px)}
+
+  /* --- cards / tables / chips / notes --- */
+  .card{background:var(--surface);border:1px solid var(--rule);border-radius:17px;padding:20px;box-shadow:0 1px 2px rgba(15,27,45,.04),0 10px 30px -16px rgba(15,27,45,.12)}
+  .card .ch{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .card .ch .tg{flex:0 0 auto;width:24px;height:24px;border-radius:8px;background:linear-gradient(135deg,rgba(7,243,171,.16),rgba(22,195,154,.18));display:flex;align-items:center;justify-content:center}
+  .card .ch .tg::before{content:"\25C8";background:linear-gradient(135deg,var(--teal),var(--green));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-size:13px;line-height:1}
+  .card .ch .tg::after{content:none}
+  .card .ch h3{margin:0;font-size:15px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+  .card .ch .hint{font-size:12px;color:var(--muted);font-weight:500}
+  .card .ch .open{margin-left:auto;font-size:12px;font-weight:600;color:var(--blue);cursor:pointer}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  thead th{text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:8px 12px 8px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+  thead th.r{text-align:right;padding-right:0}
+  tbody td{padding:12px 12px 12px 0;border-top:1px solid var(--rule);color:var(--gray);vertical-align:middle}
+  tbody tr:first-child td{border-top:none}
+  tbody td.r{text-align:right;padding-right:0;font-variant-numeric:tabular-nums}
+  tbody td.k{color:var(--ink);font-weight:700}
+  tbody tr:hover td{background:var(--soft)}
+  .chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700;line-height:1.4;letter-spacing:.01em;white-space:nowrap}
+  .chip.red{color:var(--dn);background:rgba(224,82,74,.12)}
+  .chip.amb{color:#B97A1E;background:rgba(232,163,61,.16)}
+  .chip.grn{color:#0B8C5A;background:rgba(15,169,104,.14)}
+  .chip.blu{color:var(--blue);background:rgba(37,99,235,.12)}
+  .stars{color:var(--amb);font-size:13px;letter-spacing:1px}
+  .note{border:1px solid var(--rule);background:var(--soft);border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.55;color:var(--gray)}
+  .note b{color:var(--ink);font-weight:700}
+  .src{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px}
+  .src span{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;color:var(--ink2);background:var(--soft);border:1px solid var(--rule);border-radius:8px;padding:6px 11px}
+  .src span.dot::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--up);display:inline-block}
+
+  /* --- KPI / insight banner / page headers --- */
+  .kpi{background:var(--surface);border:1px solid var(--rule);border-top-width:3px;border-radius:16px;padding:16px 17px 15px;box-shadow:0 1px 2px rgba(15,27,45,.04),0 6px 16px rgba(15,27,45,.05);transition:transform .16s ease,box-shadow .16s ease}
+  .kpi:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(15,27,45,.06),0 12px 26px rgba(15,27,45,.09)}
+  .kpi .l{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+  .kpi .l::before{content:"";flex:0 0 auto;width:18px;height:18px;border-radius:6px;background:rgba(7,243,171,.16);box-shadow:inset 0 0 0 1px rgba(7,243,171,.28)}
+  .kpi .v{font-size:26px;font-weight:800;letter-spacing:-.6px;line-height:1.1;color:var(--ink);margin:9px 0 6px;font-variant-numeric:tabular-nums}
+  .kpi .c{font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+  .kpi .c.up{color:var(--up)}.kpi .c.dn{color:var(--dn)}
+  .kpi .c .ar{font-size:9px;line-height:1}
+  .kpis .kpi:nth-child(3n+1){border-color:var(--rule);border-top-color:var(--green)}
+  .kpis .kpi:nth-child(3n+1) .l::before{background:rgba(7,243,171,.16);box-shadow:inset 0 0 0 1px rgba(7,243,171,.30)}
+  .kpis .kpi:nth-child(3n+2){border-color:var(--rule);border-top-color:var(--blue)}
+  .kpis .kpi:nth-child(3n+2) .l::before{background:rgba(37,99,235,.14);box-shadow:inset 0 0 0 1px rgba(37,99,235,.28)}
+  .kpis .kpi:nth-child(3n+3){border-color:var(--rule);border-top-color:var(--purple)}
+  .kpis .kpi:nth-child(3n+3) .l::before{background:rgba(124,92,252,.14);box-shadow:inset 0 0 0 1px rgba(124,92,252,.28)}
+  .spark{height:26px;margin-top:10px;opacity:.5}
+  .kpi:hover .spark{opacity:.8}
+  .focus{background:linear-gradient(120deg,rgba(37,99,235,.10) 0%,rgba(22,195,154,.10) 55%,rgba(7,243,171,.12) 100%);border:1px solid var(--rule);border-radius:18px;padding:20px 22px;color:var(--ink2);margin-bottom:22px;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(15,27,45,.04),0 10px 30px rgba(15,27,45,.06)}
+  .focus::after{content:"";position:absolute;right:-70px;top:-70px;width:240px;height:240px;background:radial-gradient(circle,rgba(7,243,171,.22),transparent 70%);pointer-events:none}
+  .focus .hd{display:flex;align-items:center;gap:10px;margin-bottom:15px;position:relative;z-index:1}
+  .focus .hd .ico{width:26px;height:26px;border-radius:8px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:13px;color:#06303a;box-shadow:0 2px 8px rgba(22,195,154,.30)}
+  .focus .hd .t{font-size:13px;font-weight:800;letter-spacing:.2px;color:var(--ink)}
+  .focus .hd .sub{font-size:10.5px;font-weight:700;color:var(--teal);margin-left:2px}
+  .fitems{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;position:relative;z-index:1}
+  .fitem{background:var(--surface);border:1px solid var(--rule);border-radius:13px;padding:14px 15px;box-shadow:0 1px 2px rgba(15,27,45,.04);transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+  .fitem:hover{transform:translateY(-2px);border-color:rgba(37,99,235,.30);box-shadow:0 8px 22px rgba(15,27,45,.10)}
+  .fitem .tag{font-size:8.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:999px;display:inline-block;margin-bottom:8px}
+  .tag.act{background:rgba(224,82,74,.14);color:var(--dn)}
+  .tag.watch{background:rgba(232,163,61,.16);color:var(--amb)}
+  .tag.win{background:rgba(15,169,104,.14);color:var(--up)}
+  .fitem p{font-size:12px;line-height:1.5;color:var(--gray);margin:0}
+  .fitem p b{color:var(--ink);font-weight:700}
+  .fitem .cta{font-size:10.5px;color:var(--blue);margin-top:9px;font-weight:700}
+  .phead{display:flex;align-items:center;gap:13px;margin-bottom:20px}
+  .phead .pico{flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,rgba(7,243,171,.16),rgba(22,195,154,.14));box-shadow:inset 0 0 0 1px rgba(22,195,154,.28);display:flex;align-items:center;justify-content:center}
+  .phead .pico svg{width:21px;height:21px;stroke:var(--teal);fill:none}
+  .phead h2{font-size:21px;font-weight:800;letter-spacing:-.5px;color:var(--ink);margin:0 0 2px;line-height:1.15}
+  .phead p{font-size:12.5px;color:var(--gray);margin:0;line-height:1.4}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="side">
+    <div class="brandrow">
+      <img src="senco-logo.png" alt="Senco" class="brandlogo">
+    </div>
+    <div class="navwrap">
+      <div class="nav on" data-view="overview" onclick="go(this)">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard
+      </div>
+      <div class="nav" data-view="forecasting" onclick="go(this)">
+        <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>Forecasting
+      </div>
+      <div class="nav" data-view="lothealth" onclick="go(this)">
+        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7L12 12l8.7-5"/><path d="M12 22V12"/></svg>Lot Health
+      </div>
+      <div class="nav" data-view="marketing" onclick="go(this)">
+        <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/></svg>Marketing
+      </div>
+      <div class="nav" data-view="retention" onclick="go(this)">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>Retention
+      </div>
+      <div class="nav" data-view="finance" onclick="go(this)">
+        <svg viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Finance <span class="soon">SOON</span>
+      </div>
+      <div class="nav" data-view="ask" onclick="go(this)">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask the data <span class="soon">SOON</span>
+      </div>
+    </div>
+    <div class="userbox">
+      <div class="uav">RM</div>
+      <div><div class="un">Raffaele Mazzarella</div><div class="ue">raffaele@senco.ai</div></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div class="iconbtn" style="border:none;background:transparent" title="Collapse"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M9 3v18"/></svg></div>
+      <div class="crumb">Senco 360 <b id="crumbpage">/ Dashboard</b></div>
+      <div class="spacer"></div>
+      <div class="merchpill"><span class="mdot">B</span>Batch CBD <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--muted);fill:none;stroke-width:2"><path d="M7 10l5 5 5-5"/></svg></div>
+      <div class="ddown"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Last 30 days <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="iconbtn"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+      <div class="iconbtn" id="themeBtn" onclick="toggleTheme()" title="Toggle night mode"><svg viewBox="0 0 24 24" id="themeIcon"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></div>
+      <div class="ava">RM</div>
+    </div>
+
+    <div class="wrap">
+
+      <!-- ===================== OVERVIEW ===================== -->
+      <section class="view on" id="overview">
+        <div class="phead">
+          <div class="pico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg></div>
+          <div><h2>Dashboard</h2><p>Good morning, Raffaele. Here is what matters across Batch CBD today, read from all 11 connected sources.</p></div>
+        </div>
+
+        <div class="focus">
+          <div class="hd"><div class="ico">✦</div><div class="t">What to focus on today</div><div class="sub">Senco 360 AI insight</div></div>
+          <div class="fitems">
+            <div class="fitem" onclick="goTo('forecasting')"><span class="tag act">Act now</span><p>Reorder <b>Gummies</b> (hero SKU) within <b>6 days</b>. Suggested PO <b>42,000 units</b> to hold a 30-day buffer.</p><div class="cta">Open forecast ›</div></div>
+            <div class="fitem" onclick="goTo('lothealth')"><span class="tag watch">Watch</span><p>Lot <b>#B-2231</b> support tickets at <b>8.1%</b> of orders, above the 4% norm. Worth a quality check.</p><div class="cta">Open lot health ›</div></div>
+            <div class="fitem" onclick="goTo('marketing')"><span class="tag win">Opportunity</span><p>Meta spend up <b>18%</b> and <b>Amazon sales followed</b>. Estimated halo lift <b>+$34K</b> uncredited.</p><div class="cta">Open marketing ›</div></div>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi"><div class="l">Revenue MTD</div><div class="v">$1.84M</div><div class="c up"><span class="ar">▲</span>12.4%</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#0FA968" stroke-width="2" points="0,20 15,18 30,19 45,14 60,15 75,10 90,11 105,6 120,4"/></svg></div>
+          <div class="kpi"><div class="l">Ad Spend MTD</div><div class="v">$416K</div><div class="c up"><span class="ar">▲</span>6.1%</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#2563EB" stroke-width="2" points="0,16 15,17 30,14 45,15 60,12 75,13 90,11 105,12 120,9"/></svg></div>
+          <div class="kpi"><div class="l">Blended MER</div><div class="v">4.4x</div><div class="c up"><span class="ar">▲</span>0.3</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#0FA968" stroke-width="2" points="0,18 15,16 30,17 45,13 60,14 75,12 90,10 105,9 120,7"/></svg></div>
+          <div class="kpi"><div class="l">LTV (90d)</div><div class="v">$148</div><div class="c up"><span class="ar">▲</span>4.2%</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#0FA968" stroke-width="2" points="0,19 15,18 30,16 45,16 60,13 75,12 90,12 105,9 120,8"/></svg></div>
+          <div class="kpi"><div class="l">Refund Rate</div><div class="v">2.6%</div><div class="c dn"><span class="ar">▲</span>0.4%</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#E0524A" stroke-width="2" points="0,14 15,15 30,13 45,16 60,14 75,17 90,16 105,18 120,19"/></svg></div>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <div class="ch"><span class="tg"></span><h3>Revenue vs Ad Spend</h3><span class="hint">last 30 days</span></div>
+            <div class="legend"><span><i style="background:#2563EB"></i>Revenue</span><span><i style="background:#16C39A"></i>Ad spend</span></div>
+            <svg viewBox="0 0 640 220" width="100%" height="220" preserveAspectRatio="none">
+              <defs><linearGradient id="rev" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2563EB" stop-opacity="0.18"/><stop offset="1" stop-color="#2563EB" stop-opacity="0"/></linearGradient></defs>
+              <line x1="0" y1="40" x2="640" y2="40" stroke="#EEF2F7" stroke-dasharray="4 4"/><line x1="0" y1="90" x2="640" y2="90" stroke="#EEF2F7" stroke-dasharray="4 4"/><line x1="0" y1="140" x2="640" y2="140" stroke="#EEF2F7" stroke-dasharray="4 4"/><line x1="0" y1="190" x2="640" y2="190" stroke="#EEF2F7" stroke-dasharray="4 4"/>
+              <path d="M0,150 C40,140 60,120 100,118 C150,115 170,95 210,100 C260,106 290,80 330,72 C380,62 410,78 450,60 C500,40 540,52 580,34 L640,28 L640,210 L0,210 Z" fill="url(#rev)"/>
+              <polyline fill="none" stroke="#2563EB" stroke-width="3" points="0,150 100,118 210,100 330,72 450,60 580,34 640,28"/>
+              <polyline fill="none" stroke="#16C39A" stroke-width="3" points="0,176 100,170 210,166 330,160 450,158 580,150 640,148"/>
+            </svg>
+          </div>
+          <div class="card">
+            <div class="ch"><span class="tg"></span><h3>Reorder Soon</h3><span class="open" onclick="goTo('forecasting')">Open ›</span></div>
+            <table>
+              <thead><tr><th>SKU</th><th class="r">On hand</th><th class="r">Days</th></tr></thead>
+              <tbody>
+                <tr><td class="k">Gummies 25mg</td><td class="r">61,200</td><td class="r"><span class="chip red">6d</span></td></tr>
+                <tr><td class="k">Topical Relief</td><td class="r">17,400</td><td class="r"><span class="chip red">9d</span></td></tr>
+                <tr><td class="k">Capsules 50ct</td><td class="r">88,500</td><td class="r"><span class="chip amb">21d</span></td></tr>
+                <tr><td class="k">Tincture 1oz</td><td class="r">40,100</td><td class="r"><span class="chip grn">44d</span></td></tr>
+              </tbody>
+            </table>
+            <div class="note"><b>2 SKUs need a PO this week.</b> Open forecasting for the demand history.</div>
+          </div>
+        </div>
+
+        <div class="grid3">
+          <div class="card">
+            <div class="ch"><span class="tg"></span><h3>Lot Health</h3><span class="open" onclick="goTo('lothealth')">Open ›</span></div>
+            <table>
+              <thead><tr><th>Lot</th><th class="r">Refund</th><th class="r">Tickets</th></tr></thead>
+              <tbody>
+                <tr><td class="k">#B-2231</td><td class="r"><span class="chip red">3.1%</span></td><td class="r"><span class="chip red">8.1%</span></td></tr>
+                <tr><td class="k">#B-2230</td><td class="r"><span class="chip grn">1.9%</span></td><td class="r">4.0%</td></tr>
+                <tr><td class="k">#B-2229</td><td class="r"><span class="chip grn">2.0%</span></td><td class="r">3.6%</td></tr>
+              </tbody>
+            </table>
+            <div class="note"><b>#B-2231 flagged early.</b></div>
+          </div>
+          <div class="card">
+            <div class="ch"><span class="tg"></span><h3>Marketing by Channel</h3><span class="open" onclick="goTo('marketing')">Open ›</span></div>
+            <div class="chan"><div class="cr"><span class="nm">Meta</span><span class="vv">$214K · 5.1x</span></div><div class="track"><div class="fill" style="width:92%"></div></div></div>
+            <div class="chan"><div class="cr"><span class="nm">Google</span><span class="vv">$96K · 4.0x</span></div><div class="track"><div class="fill" style="width:64%"></div></div></div>
+            <div class="chan"><div class="cr"><span class="nm">Amazon</span><span class="vv">$58K · 3.6x</span></div><div class="track"><div class="fill" style="width:48%"></div></div></div>
+            <div class="chan halo"><div class="cr"><span class="nm">Halo lift (AI)</span><span class="vv">+$34K est.</span></div><div class="track"><div class="fill" style="width:40%"></div></div></div>
+          </div>
+          <div class="card">
+            <div class="ch"><span class="tg"></span><h3>Retention</h3><span class="open" onclick="goTo('retention')">Open ›</span></div>
+            <div class="reten">
+              <div class="donut"><div class="hole"><b>64%</b><span>RETURNING</span></div></div>
+              <div class="rleg">
+                <div class="ri"><i style="background:#2563EB"></i>Returning <b>64%</b></div>
+                <div class="ri"><i style="background:#16C39A"></i>Subscription <b>20%</b></div>
+                <div class="ri"><i style="background:#E0E7EF"></i>New <b>16%</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ch"><span class="tg"></span><h3>Connected Sources</h3><span class="hint">11 live, synced this morning</span></div>
+          <div class="src">
+            <span class="dot">Shopify</span><span class="dot">Meta Ads</span><span class="dot">Google Ads</span><span class="dot">Amazon</span><span class="dot">TikTok</span><span class="dot">Klaviyo</span><span class="dot">Skio Subscriptions</span><span class="dot">Gorgias</span><span class="dot">Yotpo</span><span class="dot">QuickBooks</span><span class="dot">ShipFusion 3PL</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== FORECASTING ===================== -->
+      <section class="view" id="forecasting">
+        <div class="phead"><div class="pico"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg></div><div><h2>Forecasting &amp; Reorder</h2><p>Velocity-based demand planning across every Batch CBD SKU. Senco 360 watches how fast each product sells, then tells you when to reorder and how much, so you never sell out or sit on dead stock.</p></div></div>
+        <div class="kpis">
+          <div class="kpi"><div class="l">SKUs TRACKED</div><div class="v">24</div><div class="c up"><span class="ar">▲</span>2</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#0FA968" stroke-width="2" points="0,20 20,19 40,18 60,16 80,15 100,12 120,10"/></svg></div>
+          <div class="kpi"><div class="l">NEED A PO THIS WEEK</div><div class="v">2</div><div class="c dn"><span class="ar">▲</span>1</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#E0524A" stroke-width="2" points="0,18 20,17 40,15 60,16 80,12 100,9 120,6"/></svg></div>
+          <div class="kpi"><div class="l">FORECAST ACCURACY (MAPE)</div><div class="v">91%</div><div class="c up"><span class="ar">▲</span>3%</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#0FA968" stroke-width="2" points="0,16 20,14 40,15 60,11 80,10 100,8 120,5"/></svg></div>
+          <div class="kpi"><div class="l">AVG DAYS OF COVER</div><div class="v">27d</div><div class="c up"><span class="ar">▲</span>4%</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#0FA968" stroke-width="2" points="0,18 20,17 40,16 60,14 80,13 100,12 120,11"/></svg></div>
+          <div class="kpi"><div class="l">PROJECTED STOCKOUTS 30D</div><div class="v">1</div><div class="c dn"><span class="ar">▲</span>1</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#E0524A" stroke-width="2" points="0,20 20,19 40,18 60,17 80,14 100,11 120,8"/></svg></div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <div class="ch"><span class="tg"></span><h3>Gummies 25mg, Demand Forecast</h3><span class="hint">units per day, last 90 days plus 30-day forecast</span></div>
+            <svg viewBox="0 0 640 220" width="100%" height="220" preserveAspectRatio="none">
+              <defs><linearGradient id="fc_area" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563EB" stop-opacity="0.16"/><stop offset="100%" stop-color="#2563EB" stop-opacity="0"/></linearGradient></defs>
+              <line x1="0" y1="40" x2="640" y2="40" stroke="#EEF2F7" stroke-dasharray="4 4"/><line x1="0" y1="90" x2="640" y2="90" stroke="#EEF2F7" stroke-dasharray="4 4"/><line x1="0" y1="140" x2="640" y2="140" stroke="#EEF2F7" stroke-dasharray="4 4"/><line x1="0" y1="190" x2="640" y2="190" stroke="#EEF2F7" stroke-dasharray="4 4"/>
+              <line x1="430" y1="10" x2="430" y2="200" stroke="#C9D4E0" stroke-width="1" stroke-dasharray="4 4"/>
+              <text x="436" y="22" font-size="11" fill="#8A98A8" font-family="sans-serif">today</text>
+              <path fill="url(#fc_area)" d="M0,150 L48,142 L96,155 L143,130 L191,138 L239,118 L287,124 L335,108 L383,114 L430,98 L430,200 L0,200 Z"/>
+              <polyline fill="none" stroke="#2563EB" stroke-width="3" points="0,150 48,142 96,155 143,130 191,138 239,118 287,124 335,108 383,114 430,98"/>
+              <polyline fill="none" stroke="#16C39A" stroke-width="3" stroke-dasharray="6 5" points="430,98 478,92 526,84 574,72 640,58"/>
+            </svg>
+            <div class="legend"><span><i style="background:#2563EB"></i>Actual units sold</span><span><i style="background:#16C39A"></i>Forecast</span></div>
+          </div>
+          <div class="card">
+            <div class="ch"><span class="tg"></span><h3>Reorder Recommendations</h3><span class="hint">act this week</span></div>
+            <table>
+              <thead><tr><th>SKU</th><th class="r">PO qty</th><th class="r">Reorder by</th></tr></thead>
+              <tbody>
+                <tr><td class="k">Gummies 25mg</td><td class="r">3,600</td><td class="r"><span class="chip red">Jun 20</span></td></tr>
+                <tr><td class="k">Topical Relief</td><td class="r">1,200</td><td class="r"><span class="chip red">Jun 23</span></td></tr>
+              </tbody>
+            </table>
+            <div class="note"><b>How we size it.</b> Suggested qty covers a 30-day buffer at current selling speed plus the supplier lead time, so new stock lands before the shelf hits zero.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="tg"></span><h3>All SKUs</h3><span class="hint">days of cover drives the urgency color</span></div>
+          <table>
+            <thead><tr><th>SKU</th><th class="r">On hand</th><th class="r">Daily velocity</th><th class="r">Days of cover</th><th class="r">Lead time</th><th class="r">Reorder by</th><th class="r">Suggested qty</th></tr></thead>
+            <tbody>
+              <tr><td class="k">Gummies 25mg</td><td class="r">744</td><td class="r">124 /day</td><td class="r"><span class="chip red">6d</span></td><td class="r">14 days</td><td class="r">Jun 20</td><td class="r">3,600</td></tr>
+              <tr><td class="k">Topical Relief</td><td class="r">387</td><td class="r">43 /day</td><td class="r"><span class="chip red">9d</span></td><td class="r">12 days</td><td class="r">Jun 23</td><td class="r">1,200</td></tr>
+              <tr><td class="k">Capsules 50ct</td><td class="r">609</td><td class="r">29 /day</td><td class="r"><span class="chip amb">21d</span></td><td class="r">15 days</td><td class="r">Jul 02</td><td class="r">900</td></tr>
+              <tr><td class="k">Bath Bomb 4pk</td><td class="r">266</td><td class="r">19 /day</td><td class="r"><span class="chip amb">14d</span></td><td class="r">10 days</td><td class="r">Jun 26</td><td class="r">600</td></tr>
+              <tr><td class="k">Tincture 1oz</td><td class="r">968</td><td class="r">22 /day</td><td class="r"><span class="chip grn">44d</span></td><td class="r">16 days</td><td class="r">None</td><td class="r">None</td></tr>
+              <tr><td class="k">Sleep Drops</td><td class="r">722</td><td class="r">19 /day</td><td class="r"><span class="chip grn">38d</span></td><td class="r">14 days</td><td class="r">None</td><td class="r">None</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note"><b>The forecast grades itself.</b> Every cycle Senco 360 compares what it predicted last month to what actually sold and scores the gap. That is the 91% accuracy number (MAPE). When a SKU starts drifting, the model retunes and flags it, so the team can trust the reorder calls instead of guessing.</div>
+      </section>
+
+      <!-- ===================== LOT HEALTH ===================== -->
+      <section class="view" id="lothealth">
+        <div class="phead"><div class="pico"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7L12 12l8.7-5"/><path d="M12 22V12"/></svg></div><div><h2>Lot Health</h2><p>Every lot tied to its refunds, support tickets and reviews, end to end from the 3PL to the customer.</p></div></div>
+        <div class="kpis">
+          <div class="kpi"><div class="l">ACTIVE LOTS</div><div class="v">5</div><div class="c up"><span class="ar">▲</span>1</div></div>
+          <div class="kpi"><div class="l">FLAGGED LOTS</div><div class="v">1</div><div class="c dn"><span class="ar">▲</span>1</div></div>
+          <div class="kpi"><div class="l">AVG REFUND RATE</div><div class="v">2.3%</div><div class="c dn"><span class="ar">▲</span>0.4%</div></div>
+          <div class="kpi"><div class="l">AVG TICKET RATE</div><div class="v">4.6%</div><div class="c dn"><span class="ar">▲</span>0.9%</div></div>
+          <div class="kpi"><div class="l">LOT TO CUSTOMER COVERAGE</div><div class="v">98%</div><div class="c up"><span class="ar">▲</span>3%</div></div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="tg"></span><h3>Lots, ranked by risk</h3><span class="hint">refunds, tickets and reviews joined per lot</span></div>
+          <table>
+            <thead><tr><th>Lot</th><th>Product</th><th class="r">Units shipped</th><th class="r">Orders</th><th class="r">Refund %</th><th class="r">Support tickets %</th><th class="r">Avg rating</th><th class="r">Status</th></tr></thead>
+            <tbody>
+              <tr><td class="k">#B-2231</td><td>Gummies 25mg</td><td class="r">18,900</td><td class="r">14,200</td><td class="r"><span class="chip red">3.1%</span></td><td class="r"><span class="chip red">8.1%</span></td><td class="r"><span class="stars">★★★★</span> 4.1</td><td class="r"><span class="chip red">Flagged</span></td></tr>
+              <tr><td class="k">#B-2230</td><td>Capsules 50ct</td><td class="r">15,400</td><td class="r">11,800</td><td class="r"><span class="chip grn">1.7%</span></td><td class="r"><span class="chip grn">3.2%</span></td><td class="r"><span class="stars">★★★★★</span> 4.8</td><td class="r"><span class="chip grn">Healthy</span></td></tr>
+              <tr><td class="k">#B-2229</td><td>Tincture 1oz</td><td class="r">9,600</td><td class="r">7,300</td><td class="r"><span class="chip grn">1.9%</span></td><td class="r"><span class="chip grn">3.6%</span></td><td class="r"><span class="stars">★★★★★</span> 4.7</td><td class="r"><span class="chip grn">Healthy</span></td></tr>
+              <tr><td class="k">#B-2228</td><td>Gummies 25mg</td><td class="r">17,200</td><td class="r">13,100</td><td class="r"><span class="chip grn">1.8%</span></td><td class="r"><span class="chip grn">3.9%</span></td><td class="r"><span class="stars">★★★★★</span> 4.6</td><td class="r"><span class="chip grn">Healthy</span></td></tr>
+              <tr><td class="k">#B-2227</td><td>Capsules 50ct</td><td class="r">12,800</td><td class="r">9,900</td><td class="r"><span class="chip grn">2.0%</span></td><td class="r"><span class="chip grn">4.0%</span></td><td class="r"><span class="stars">★★★★★</span> 4.7</td><td class="r"><span class="chip grn">Healthy</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <div class="ch"><span class="tg"></span><h3>Lot #B-2231 detail</h3><span class="hint">Gummies 25mg, flagged 6 days ago</span></div>
+            <p class="mini">Refunds, support tickets and reviews all point to the same defect on this lot. The pattern showed up while refund volume was still low, before it became a wider problem.</p>
+            <table>
+              <tbody>
+                <tr><td class="k">Refunds tied to lot</td><td class="r">440 of 14,200 orders</td></tr>
+                <tr><td class="k">Support tickets tied to lot</td><td class="r">1,150 of 14,200 orders</td></tr>
+                <tr><td class="k">Negative reviews (1 to 2 star)</td><td class="r">63</td></tr>
+                <tr><td class="k">Top defect</td><td class="r"><span class="chip red">Leaking sachet</span></td></tr>
+              </tbody>
+            </table>
+            <div class="ch" style="margin-top:16px"><span class="tg"></span><h3>Support tickets by category</h3></div>
+            <div class="chan"><div class="cr"><span class="nm">Leaking sachet</span><span class="vv">41%</span></div><div class="track"><div class="fill" style="width:41%"></div></div></div>
+            <div class="chan"><div class="cr"><span class="nm">Texture / melt</span><span class="vv">28%</span></div><div class="track"><div class="fill" style="width:28%"></div></div></div>
+            <div class="chan"><div class="cr"><span class="nm">Late delivery</span><span class="vv">19%</span></div><div class="track"><div class="fill" style="width:19%"></div></div></div>
+            <div class="chan"><div class="cr"><span class="nm">Other</span><span class="vv">12%</span></div><div class="track"><div class="fill" style="width:12%"></div></div></div>
+            <div class="ch" style="margin-top:16px"><span class="tg"></span><h3>What customers are saying</h3><span class="hint">Yotpo, 1 to 2 star, this lot</span></div>
+            <div style="border-left:3px solid var(--amb);padding:6px 0 6px 12px;margin:10px 0">
+              <div style="color:var(--gray);font-size:12.5px">Opened the pouch and two sachets had already leaked all over the others. Sticky mess, half the pack was unusable.</div>
+              <div class="mini" style="margin-top:4px">★★ Verified buyer, Gummies 25mg</div>
+            </div>
+            <div style="border-left:3px solid var(--amb);padding:6px 0 6px 12px;margin:10px 0">
+              <div style="color:var(--gray);font-size:12.5px">Loved these before but this batch arrived melted together in one clump. Not what I usually get from you.</div>
+              <div class="mini" style="margin-top:4px">★★ Verified buyer, Gummies 25mg</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch"><span class="tg"></span><h3>Connected customers</h3><span class="hint">3PL barcode to email</span></div>
+            <div class="note"><b>14,200 orders on this lot map to customer emails.</b> Each unit is matched to the buyer through the 3PL barcode scan at pick and pack, so support can reach affected customers proactively instead of waiting for complaints.</div>
+            <table>
+              <tbody>
+                <tr><td class="k">Customers on this lot</td><td class="r">13,640</td></tr>
+                <tr><td class="k">Already contacted support</td><td class="r">1,150</td></tr>
+                <tr><td class="k">Not yet contacted</td><td class="r"><span class="chip amb">12,490</span></td></tr>
+              </tbody>
+            </table>
+            <p class="mini" style="margin-top:12px">Tag-based logic built with the support team auto-applies a <b>CX quality leaking sachet</b> tag across Shopify and Gorgias, so any ticket on this lot routes to the right macro and the right replacement flow.</p>
+          </div>
+        </div>
+        <div class="note"><b>Built for the regulation curve.</b> End to end lot-to-customer tracking is exactly what FDA recall and adverse-event reporting require. As supplement oversight tightens, being able to name every customer on a given lot in seconds turns a recall from a fire drill into a routine export.</div>
+      </section>
+
+      <!-- ===================== MARKETING ===================== -->
+      <section class="view" id="marketing">
+        <div class="phead"><div class="pico"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/></svg></div><div><h2>Marketing &amp; Attribution</h2><p>Every ad channel and every KPI for Batch CBD in one place. Senco 360 plugs into Triple Whale by API and sits above all your channels, then adds the AI halo effect that exact click attribution misses.</p></div></div>
+        <div class="kpis">
+          <div class="kpi"><div class="l">Ad spend MTD</div><div class="v">$416K</div><div class="c up"><span class="ar">▲</span>6.2%</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#0FA968" stroke-width="2" points="0,18 20,20 40,15 60,16 80,12 100,10 120,8"/></svg></div>
+          <div class="kpi"><div class="l">Blended MER</div><div class="v">4.4x</div><div class="c up"><span class="ar">▲</span>9.4%</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#0FA968" stroke-width="2" points="0,20 20,17 40,18 60,13 80,12 100,9 120,7"/></svg></div>
+          <div class="kpi"><div class="l">New customers</div><div class="v">9,120</div><div class="c up"><span class="ar">▲</span>11.8%</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#0FA968" stroke-width="2" points="0,21 20,19 40,16 60,15 80,11 100,9 120,6"/></svg></div>
+          <div class="kpi"><div class="l">Blended CAC (lower is better)</div><div class="v">$46</div><div class="c up"><span class="ar">▼</span>7.1%</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#0FA968" stroke-width="2" points="0,8 20,9 40,11 60,12 80,15 100,17 120,19"/></svg></div>
+          <div class="kpi"><div class="l">Halo lift est.</div><div class="v">+$34K</div><div class="c up"><span class="ar">▲</span>14.3%</div><svg class="spark" viewBox="0 0 120 26" preserveAspectRatio="none"><polyline fill="none" stroke="#0FA968" stroke-width="2" points="0,22 20,20 40,18 60,14 80,13 100,9 120,7"/></svg></div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <div class="ch"><span class="tg"></span><h3>Spend vs Revenue by day</h3><span class="hint">last 14 days</span></div>
+            <svg viewBox="0 0 640 220" width="100%" height="220" preserveAspectRatio="none">
+              <defs><linearGradient id="mk_area" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563EB" stop-opacity="0.20"/><stop offset="100%" stop-color="#2563EB" stop-opacity="0"/></linearGradient></defs>
+              <line x1="0" y1="40" x2="640" y2="40" stroke="#EEF2F7" stroke-dasharray="4 4"/><line x1="0" y1="90" x2="640" y2="90" stroke="#EEF2F7" stroke-dasharray="4 4"/><line x1="0" y1="140" x2="640" y2="140" stroke="#EEF2F7" stroke-dasharray="4 4"/><line x1="0" y1="190" x2="640" y2="190" stroke="#EEF2F7" stroke-dasharray="4 4"/>
+              <path d="M0,150 L49,142 L98,156 L147,138 L196,120 L246,128 L295,104 L344,112 L393,86 L442,96 L491,74 L541,82 L590,58 L640,66 L640,220 L0,220 Z" fill="url(#mk_area)"/>
+              <polyline fill="none" stroke="#2563EB" stroke-width="3" points="0,150 49,142 98,156 147,138 196,120 246,128 295,104 344,112 393,86 442,96 491,74 541,82 590,58 640,66"/>
+              <polyline fill="none" stroke="#16C39A" stroke-width="3" points="0,178 49,174 98,180 147,170 196,166 246,172 295,160 344,164 393,154 442,158 491,150 541,152 590,144 640,148"/>
+            </svg>
+            <div class="legend"><span><i style="background:#2563EB"></i>Revenue</span><span><i style="background:#16C39A"></i>Spend</span></div>
+          </div>
+          <div class="card">
+            <div class="ch"><span class="tg"></span><h3>Channel performance</h3><span class="hint">spend · MER</span></div>
+            <div class="chan"><div class="cr"><span class="nm">Meta</span><span class="vv">$214K · 5.1x</span></div><div class="track"><div class="fill" style="width:92%"></div></div></div>
+            <div class="chan"><div class="cr"><span class="nm">Google</span><span class="vv">$96K · 4.0x</span></div><div class="track"><div class="fill" style="width:64%"></div></div></div>
+            <div class="chan"><div class="cr"><span class="nm">Amazon</span><span class="vv">$58K · 3.6x</span></div><div class="track"><div class="fill" style="width:48%"></div></div></div>
+            <div class="chan"><div class="cr"><span class="nm">TikTok</span><span class="vv">$31K · 2.9x</span></div><div class="track"><div class="fill" style="width:33%"></div></div></div>
+            <div class="chan"><div class="cr"><span class="nm">Email / Klaviyo</span><span class="vv">$9K · 11.2x</span></div><div class="track"><div class="fill" style="width:22%"></div></div></div>
+            <div class="chan halo"><div class="cr"><span class="nm">Halo lift (AI est.)</span><span class="vv">+$34K</span></div><div class="track"><div class="fill" style="width:40%"></div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="tg"></span><h3>Channel detail</h3><span class="hint">month to date</span></div>
+          <table>
+            <thead><tr><th>Channel</th><th class="r">Spend</th><th class="r">Revenue</th><th class="r">MER</th><th class="r">ROAS</th><th class="r">New customers</th><th class="r">CAC</th></tr></thead>
+            <tbody>
+              <tr><td class="k">Meta</td><td class="r">$214K</td><td class="r">$1.09M</td><td class="r">5.1x</td><td class="r">3.4x</td><td class="r">4,460</td><td class="r">$48</td></tr>
+              <tr><td class="k">Google</td><td class="r">$96K</td><td class="r">$384K</td><td class="r">4.0x</td><td class="r">2.9x</td><td class="r">2,180</td><td class="r">$44</td></tr>
+              <tr><td class="k">Amazon</td><td class="r">$58K</td><td class="r">$209K</td><td class="r">3.6x</td><td class="r">2.6x</td><td class="r">1,490</td><td class="r">$39</td></tr>
+              <tr><td class="k">TikTok</td><td class="r">$31K</td><td class="r">$90K</td><td class="r">2.9x</td><td class="r">2.1x</td><td class="r">760</td><td class="r">$41</td></tr>
+              <tr><td class="k">Email / Klaviyo</td><td class="r">$9K</td><td class="r">$101K</td><td class="r">11.2x</td><td class="r">9.8x</td><td class="r">230</td><td class="r">$39</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note"><b>The halo effect.</b> Senco 360 reads patterns across every channel and spots where paid spend in one place quietly lifts sales in another. When Meta spend climbs, Batch CBD sees Amazon orders, branded search, and direct traffic follow a few days later, within a reasonable margin. This month the AI estimates +$34K in sales driven that way. Exact click attribution cannot capture this because the click and the sale happen in different places.</div>
+        <div class="note"><b>Works with Triple Whale, not against it.</b> Senco 360 plugs into Triple Whale by API and sits above it, putting every channel and KPI on one screen. We do not replace it. Exact customer-journey attribution stays with Triple Whale. Senco 360 adds the cross-channel halo view on top.</div>
+      </section>
+
+      <!-- ===================== RETENTION ===================== -->
+      <section class="view" id="retention">
+        <div class="phead"><div class="pico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></div><div><h2>Retention</h2><p>Returning, subscription and new customer mix, with repeat rate trend. Subscription data flows from Skio.</p></div></div>
+        <div class="grid2">
+          <div class="card"><div class="ch"><span class="tg"></span><h3>Customer Mix (30d)</h3></div>
+            <div class="reten"><div class="donut"><div class="hole"><b>64%</b><span>RETURNING</span></div></div>
+              <div class="rleg">
+                <div class="ri"><i style="background:#2563EB"></i>Returning <b>64%</b></div>
+                <div class="ri"><i style="background:#16C39A"></i>Subscription <b>20%</b></div>
+                <div class="ri"><i style="background:#E0E7EF"></i>New <b>16%</b></div>
+                <div class="ri" style="border-top:1px solid var(--rule);padding-top:10px">Repeat rate <b style="color:var(--up)">+3.1%</b></div>
+              </div></div>
+          </div>
+          <div class="card"><div class="ch"><span class="tg"></span><h3>Repeat Rate Trend</h3></div>
+            <div class="bars"><div class="b" style="height:55%"></div><div class="b" style="height:60%"></div><div class="b" style="height:58%"></div><div class="b" style="height:66%"></div><div class="b" style="height:70%"></div><div class="b" style="height:74%"></div></div>
+            <div class="barx"><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== FINANCE / ASK ===================== -->
+      <section class="view" id="finance"><div class="vhead"><h2>Finance</h2><p>Cash, margin and payment metrics from QuickBooks and Senco Payments. Coming in a later release.</p></div><div class="card"><div class="note">This view is on the roadmap. The MVP focuses on forecasting, lot health and marketing first.</div></div></section>
+      <section class="view" id="ask"><div class="vhead"><h2>Ask the data</h2><p>Ask any question in plain English and Senco 360 queries across all sources. Coming in a later release.</p></div><div class="card"><div class="note">The AI assistant is out of the MVP scope on purpose, and arrives after the core views are solid.</div></div></section>
+
+      <div class="foot">Senco 360 · G2G MVP prototype for the Senco team · Sample data, not live · Built from the Batch / FOCL feedback</div>
+
+    </div>
+  </div>
+</div>
+
+<div class="assistant" title="Ask Senco">S</div>
+
+<script>
+  function go(el){
+    document.querySelectorAll('.nav').forEach(n=>n.classList.remove('on'));
+    el.classList.add('on');
+    show(el.dataset.view, el.textContent.trim().replace('SOON','').trim());
+  }
+  function goTo(id){ const el=document.querySelector('.nav[data-view="'+id+'"]'); if(el) go(el); }
+  function show(id, title){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+    const v=document.getElementById(id); if(v) v.classList.add('on');
+    document.getElementById('crumbpage').textContent = '/ '+(title||id);
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function toggleTheme(){
+    const dark = document.body.classList.toggle('dark');
+    document.getElementById('themeIcon').innerHTML = dark
+      ? '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>'
+      : '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
+  }
+</script>
+</body>
+</html>
